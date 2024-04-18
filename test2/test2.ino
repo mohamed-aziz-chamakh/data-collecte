@@ -34,7 +34,55 @@ void setup() {
  SerialBT.setPin(pin);
  Serial.println("Using PIN");
  #endif*/
+
+ //while (1);
+}
+
+void scan_wifi_networks()
+{
+ WiFi.mode(WIFI_STA);
+ // WiFi.scanNetworks will return the number of networks found
+ int n = WiFi.scanNetworks();
+ if (n == 0) {
+ SerialBT.println("no networks found");
+ } else {
+ SerialBT.println();
+ SerialBT.print(n);
+ SerialBT.println(" networks found");
+ delay(1000);
+ for (int i = 0; i < n; ++i) {
+ ssids_array[i + 1] = WiFi.SSID(i);
+ Serial.print(i + 1);
+ Serial.print(": ");
+ Serial.println(ssids_array[i + 1]);
+ network_string = i + 1;
+ network_string = network_string + ": " + WiFi.SSID(i) + " (Strength:" + WiFi.RSSI(i) + ")";
+ SerialBT.println(network_string);
+ }
+ }
+}
+
+void disconnect_bluetooth()
+{
+ delay(1000);
+ Serial.println("BT stopping");
+ SerialBT.println("Bluetooth disconnecting...");
+ delay(1000);
+ SerialBT.flush();
+ SerialBT.disconnect();
+ SerialBT.end();
+ Serial.println("BT stopped");
+ delay(1000);
+}
+
+void loop() {
+
+
  while (!(SerialBT.available()));
+     String command = SerialBT.readStringUntil('\n');
+
+ if(command.startsWith("start"))
+ {
  SerialBT.println("Scanning Wi-Fi networks");
  Serial.println("Scanning Wi-Fi networks");
  
@@ -112,46 +160,15 @@ A:
  incoming_char = "";
  SSIDIN = "";
  PASSIN = "";
- //while (1);
-}
 
-void scan_wifi_networks()
-{
- WiFi.mode(WIFI_STA);
- // WiFi.scanNetworks will return the number of networks found
- int n = WiFi.scanNetworks();
- if (n == 0) {
- SerialBT.println("no networks found");
- } else {
- SerialBT.println();
- SerialBT.print(n);
- SerialBT.println(" networks found");
- delay(1000);
- for (int i = 0; i < n; ++i) {
- ssids_array[i + 1] = WiFi.SSID(i);
- Serial.print(i + 1);
- Serial.print(": ");
- Serial.println(ssids_array[i + 1]);
- network_string = i + 1;
- network_string = network_string + ": " + WiFi.SSID(i) + " (Strength:" + WiFi.RSSI(i) + ")";
- SerialBT.println(network_string);
  }
+ else
+ {
+ SerialBT.println("ERROR");
+
+
  }
-}
 
-void disconnect_bluetooth()
-{
- delay(1000);
- Serial.println("BT stopping");
- SerialBT.println("Bluetooth disconnecting...");
- delay(1000);
- SerialBT.flush();
- SerialBT.disconnect();
- SerialBT.end();
- Serial.println("BT stopped");
- delay(1000);
-}
 
-void loop() {
- delay(1000);
+
 }
