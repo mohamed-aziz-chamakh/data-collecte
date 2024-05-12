@@ -8,9 +8,9 @@ RF24 radio(21, 22); // Pin CE, CSN
 const byte address[6] = "00001"; // Adresse de transmission
 
 
-const char* ssid = "ORANGE_2A39";
-const char* password = "FYAAT5VV";
-const char* serverIP = "192.168.1.9";
+const char* ssid = "****";
+const char* password = "******";
+const char* serverIP = "*******";
 const int serverPort = 3000; // Port sur lequel votre serveur écoute
 
 
