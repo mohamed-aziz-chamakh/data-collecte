@@ -5,12 +5,12 @@
 #define DHTPIN A1
 #define LDRPIN A0
 #define DHTTYPE DHT22
+#define VIBRATIONPIN A3 // Pin for vibration sensor
 
 RF24 radio(9, 10); // CE, CSN
 DHT dht(DHTPIN, DHTTYPE);
 
 const byte address[6] = "00001";
-
 
 void setup() {
   Serial.begin(9600);
@@ -18,6 +18,7 @@ void setup() {
   radio.openWritingPipe(address);
   dht.begin();
   pinMode(LDRPIN, INPUT);
+  pinMode(VIBRATIONPIN, INPUT);
 
   if (radio.isChipConnected()) {
     Serial.println(F("NRF24L01 module connected successfully!"));
@@ -31,20 +32,27 @@ void loop() {
   float humidity = dht.readHumidity();
   float temperature = dht.readTemperature();
   
-  // Envoi des données
-  sendSensorData(1, 1, humidity, "Pourcentage");
+  // Envoi des données du DHT22
+  sendSensorData("30:AE", "AB:C6", humidity, "%");
   delay(2000);
-  sendSensorData(1, 1, temperature, "Celsius");
+  sendSensorData("30:AE", "AB:CD", temperature, "C");
   delay(2000);
+
+  // Lecture des données du capteur LDR
   int luminosity = analogRead(LDRPIN);
-  sendSensorData(1, 2, luminosity, "Lux");
+  sendSensorData("30:AE", "BC:DE", luminosity, "Lux");
+  delay(2000);
+
+  // Lecture des données du capteur de vibration S801
+  int vibration = analogRead(VIBRATIONPIN);
+  Serial.println(vibration);
+
+  sendSensorData("30:AE", "DE:FG", vibration, "mm/s");
   delay(2000);
 }
 
-void sendSensorData(int id_gateway, int id_capteur, float mesure, String unite) {
-
-
-  String dataToSend = String(id_gateway) + "," + String(id_capteur) + "," + String(mesure) + "," + unite;
+void sendSensorData(String adresse_gateway, String adresse_sensor, float mesure, String unite) {
+  String dataToSend = adresse_gateway + "," + adresse_sensor + "," + String(mesure) + "," + unite;
 
   if (radio.write(dataToSend.c_str(), dataToSend.length())) {
     Serial.println("Données envoyées avec succès.");
@@ -53,5 +61,4 @@ void sendSensorData(int id_gateway, int id_capteur, float mesure, String unite) 
   }
 
   delay(6000);
-
 }
